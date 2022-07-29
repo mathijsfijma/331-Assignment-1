@@ -145,25 +145,12 @@ Eigenpair power_method(double** A, double* v, int n, double tol)
   Eigenpair eigenpair(n);
 
   // Code Here //
-
-
-  // initializing stuff
+    // initializing stuff
   eigenpair.length = n;
-
+  eigenpair.vector = v;
   bool is_converged = false;
   double total = 0;
-
-  // normalizing inital eigenvector estimate
-  for (int i = 0; i < n; i++) {
-      total += pow(v[i], 2);
-  }
-
-  double v_mag = sqrt(total);
-  total = 0;
-  for (int i = 0; i < n; i++) {
-      eigenpair.vector[i] = v[i] / v_mag;
-  }
-
+  eigenpair.normalize();
   double num = INFINITY;
 
   // iterative power method in while loop:
@@ -175,7 +162,7 @@ Eigenpair power_method(double** A, double* v, int n, double tol)
       // finding index of largest element in t vector
       int index = 0;
       for (int i = 1; i < n; ++i) {
-          
+
           // Change < to > if you want to find the smallest element
           if (max < eigenpair.vector[i]) {
               max = eigenpair.vector[i];
@@ -183,35 +170,30 @@ Eigenpair power_method(double** A, double* v, int n, double tol)
           }
       }
       // finding estimate for eigenvalue and normalising eigenvector accordingly
-      for (int i = 0; i < n; i++) {
-          total += pow(t[i], 2);
-      }
-      double EST_value = sqrt(total);
-      total = 0;
-      for (int i = 0; i < n; i++) {
-          eigenpair.vector[i] = t[i] / EST_value;
-      }
-     
-      if ((t[index] / eigenpair.vector[index]) < 0) {
-          EST_value = -EST_value;
-      }
+      eigenpair.vector = t;
+      eigenpair.normalize();
       
+      if ((t[index] / eigenpair.vector[index]) < 0) {
+          eigenpair.value = -eigenpair.value;
+      }
+
       // convergance checks
-      if (EST_value < num){
-          if ((EST_value + tol) >= num) {
+      if (eigenpair.value < num) {
+          if ((eigenpair.value + tol) >= num) {
               is_converged = true;
-              eigenpair.value = EST_value;
+             // eigenpair.value = eigenpair.value;
+              
           }
-          num = EST_value;
+          num = eigenpair.value;
       }
-      else if (EST_value > num) {
-          if ((EST_value - num) <= tol) {
+      else if (eigenpair.value > num) {
+          if ((eigenpair.value - num) <= tol) {
               is_converged = true;
-              eigenpair.value = EST_value;
+              //eigenpair.value = eigenpair.value;
           }
-          num = EST_value;
+          num = eigenpair.value;
       }
-     
+
   }
 
   return eigenpair;
@@ -224,24 +206,26 @@ void deflate(double** A, Eigenpair eigenpair)
   //
 
   // Code Here //
+    double total = 0.0;
+    for (int i = 0; i < eigenpair.length; i++) {
+        total += pow(eigenpair.vector[i], 2);
+    }
+    double v_mag = sqrt(total);
+    total = 0;
+    for (int i = 0; i < eigenpair.length; i++) {
+        eigenpair.vector[i] = eigenpair.vector[i] / v_mag;
+    }
 
-  double total = 0.0;
-  for (int i = 0; i < eigenpair.length; i++) {
-      total += pow(eigenpair.vector[i], 2);
-  }
-  double v_mag = sqrt(total);
-  total = 0;
-  for (int i = 0; i < eigenpair.length; i++) {
-      eigenpair.vector[i] = eigenpair.vector[i] / v_mag;
-  }
+    for (int i = 0; i < eigenpair.length; i++) {
+        for (int j = 0; j < eigenpair.length; j++) {
+            A[i][j] = A[i][j] - (eigenpair.value * eigenpair.vector[i] * eigenpair.vector[j]);
+        }
+    }
 
-  for (int i = 0; i < eigenpair.length; i++) {
-      for (int j = 0; j < eigenpair.length; j++) {
-          A[i][j] = A[i][j] - (eigenpair.value * eigenpair.vector[i] * eigenpair.vector[j]);
-      }
-  }
 }
- 
+
+
+
 double** CenterMatrix(double** A, int n, int m)
 {
   //
@@ -257,8 +241,7 @@ double** CenterMatrix(double** A, int n, int m)
   }
 
     // Code Here //
-
-  // finding emperical means of each column of A
+// finding emperical means of each column of A
   double* means = new double[n];
   for (int i = 0; i < n; i++) {
       double total = 0;
@@ -268,12 +251,13 @@ double** CenterMatrix(double** A, int n, int m)
       means[i] = total / n;
   }
   // subtracting emperical mean from each column
-  for (int i = 0; i < n; i++) {  
+  for (int i = 0; i < n; i++) {
       for (int j = 0; j < m; j++) {
           A[i][j] = A[i][j] - means[i];
       }
   }
   result = A;
+
   return result;
 }
 
@@ -294,8 +278,6 @@ double** CovarianceMatrix(double** A, int n, int m)
   }
 
     // Code Here //
-
-  
   for (int i = 0; i < m; i++) {
       for (int j = 0; j < m; j++) {
           double total = 0;
@@ -303,10 +285,9 @@ double** CovarianceMatrix(double** A, int n, int m)
               total += cA[k][i] * cA[k][j];
           }
           cov[i][j] = total / n;
-          //cov[i][j] = (cA[i][j] * cA[j][i]) / n;
+          // cov[i][j] = cA[n][i] * cA[n][j] / n;
       }
   }
-  
-  
+
   return cov;
 }

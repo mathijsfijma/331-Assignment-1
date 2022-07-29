@@ -29,19 +29,22 @@ struct Eigenpair
 {
   double value; //Eigenvalue
   double* vector; //Eigenvector
-  int length; //Length of eigenvector
+  double length; //Length of eigenvector
   void normalize()
   {
     // Set value to norm (aka magnitude) of vector and normalize vector
 	
     // Code Here Recommended (or elsewhere) //
-
-
-
-
-
-
-
+      double total = 0;
+      for (int i = 0; i < length; i++) {
+        total += pow(vector[i], 2);
+      }
+      value = sqrt(total);
+ 
+      for (int i = 0; i < length; i++) {
+        vector[i] = vector[i] / value;
+      }
+      
 
 
   }
