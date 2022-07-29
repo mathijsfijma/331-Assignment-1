@@ -206,19 +206,13 @@ void deflate(double** A, Eigenpair eigenpair)
   //
 
   // Code Here //
-    double total = 0.0;
-    for (int i = 0; i < eigenpair.length; i++) {
-        total += pow(eigenpair.vector[i], 2);
-    }
-    double v_mag = sqrt(total);
-    total = 0;
-    for (int i = 0; i < eigenpair.length; i++) {
-        eigenpair.vector[i] = eigenpair.vector[i] / v_mag;
-    }
+    double temp_eigenvalue = eigenpair.value;
+    eigenpair.normalize();
+
 
     for (int i = 0; i < eigenpair.length; i++) {
         for (int j = 0; j < eigenpair.length; j++) {
-            A[i][j] = A[i][j] - (eigenpair.value * eigenpair.vector[i] * eigenpair.vector[j]);
+            A[i][j] = A[i][j] - (temp_eigenvalue * eigenpair.vector[i] * eigenpair.vector[j]);
         }
     }
 
@@ -251,9 +245,9 @@ double** CenterMatrix(double** A, int n, int m)
       means[i] = total / n;
   }
   // subtracting emperical mean from each column
-  for (int i = 0; i < n; i++) {
-      for (int j = 0; j < m; j++) {
-          A[i][j] = A[i][j] - means[i];
+  for (int i = 0; i < m; i++) {
+      for (int j = 0; j < n; j++) {
+          A[j][i] = A[j][i] - means[i];
       }
   }
   result = A;

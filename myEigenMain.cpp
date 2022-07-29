@@ -287,19 +287,38 @@ int main(void)
   cov = CovarianceMatrix(spectra, N, M);
 
   // Code Here //
+  double vector_guess[N];
+  double eigenvalues[N];
+  double* eigenvectors[N];
+  
+  //computing principle components, iteratively calling power_method and deflate
+  for (int i = 0; i < N; i++) {
+      
+      Eigenpair Eigens = power_method(cov, vector_guess, (N), TOL);
+      eigenvalues[i] = Eigens.value;
+      eigenvectors[i] = Eigens.vector;
+      deflate(cov, Eigens);
+  }
 
+  //writing out eigenvectors and eigenvalues (representing principle components) to csv
+  std::ofstream PCA_FILE_EIGENVECTORS;
+  PCA_FILE_EIGENVECTORS.open("PCA_EIGENVECTOR.csv");
+  PCA_FILE_EIGENVECTORS << "PRINCIPAL COMPONENTS OF SPECTRA COVARIANCE MATRIX.\n";
+  for (int i = 0; i < N; i++) {
+      for (int j = 0; j < N; j++) {
+          PCA_FILE_EIGENVECTORS << eigenvectors[i][j] << ",";
+      }
+      PCA_FILE_EIGENVECTORS << ".\n";
+  }
 
+  std::ofstream PCA_FILE_EIGENVALUES;
+  PCA_FILE_EIGENVALUES.open("PCA_EIGENVALUES.csv");
+  PCA_FILE_EIGENVALUES << "PRINCIPAL COMPONENTS OF SPECTRA COVARIANCE MATRIX.\n";
+  for (int i = 0; i < N; i++) {
+      PCA_FILE_EIGENVALUES << eigenvalues[i] << ",";
+  }
 
-
-
-
-
-
-
-
-
-
-
+// to do: ORTHOGONALITY CHECKS
 
   cout << "============================================================\n";
 }
