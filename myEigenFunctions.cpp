@@ -209,7 +209,7 @@ void deflate(double** A, Eigenpair eigenpair)
 
     for (int i = 0; i < eigenpair.length; i++) {
         for (int j = 0; j < eigenpair.length; j++) {
-            A[i][j] = A[i][j] - (temp_eigenvalue * eigenpair.vector[i] * eigenpair.vector[j]);
+            A[i][j] = A[i][j] - (temp_eigenvalue * eigenpair.vector[j] * eigenpair.vector[i]);
         }
     }
 
@@ -230,14 +230,14 @@ double** CenterMatrix(double** A, int n, int m)
     {
         result[row] = new double[m];
     }
-    
+
     // Code Here //
     // finding emperical means of each column of A
-    double* means = new double[n];
-    for (int i = 0; i < n; i++) {
+    double* means = new double[m];
+    for (int i = 0; i < m; i++) {
         double total = 0;
-        for (int j = 0; j < m; j++) {
-            total += A[i][j];
+        for (int j = 0; j < n; j++) {
+            total += A[j][i];
         }
         means[i] = total / n;
     }
@@ -265,15 +265,15 @@ double** CovarianceMatrix(double** A, int n, int m)
     {
         cov[i] = new double[m];
     }
-    
+
     // Code Here //
     for (int i = 0; i < m; i++) {
         for (int j = 0; j < m; j++) {
             double total = 0;
-            for (int k = 0; k < n; k++){
-                total += cA[k][i] * cA[k][j];
+            for (int k = 0; k < n; k++) {
+                total += (cA[k][i] * cA[k][j]);
             }
-            cov[i][j] = total/n;
+            cov[i][j] = total / (n-1);
             // cov[i][j] = (total1*total2) / n;
             // cov[i][j] = cA[n][i] * cA[n][j] / n;
         }

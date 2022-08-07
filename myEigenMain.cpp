@@ -1,13 +1,11 @@
 /*======================================================================================================
     testEigenFunctions.cpp
-
     This is the main file for the ENGSCI331 Eigenvectors module.
     It may demonstrate some new C++ syntax and functions.
     *** There are some examples of "bad" programming in here (bits missing etc.,) that you should
     probably fix. However, this file should compile straight away without any errors. ***
     You should use this file to get you started on the assignment.
     You're welcome to change whatever you'd like to as you go, this is only a starting point.
-
 ======================================================================================================*/
 
 #define _CRT_SECURE_NO_DEPRECATE
@@ -37,9 +35,7 @@ bool AE(double a, double b, double tol = TOL)
 int main(void)
 {
     /*==================================================================================================
-
         PART 1: Power method
-
     ==================================================================================================*/
     cout << "============================================================\n";
     cout << "PART 1: Power method\n\n";
@@ -98,9 +94,7 @@ int main(void)
     delete[] v;
     cout << "============================================================\n";
     /*==================================================================================================
-
         PART 2: Power Method and Deflate
-
     ==================================================================================================*/
     cout << "PART 2: Power Method and Deflate\n\n";
     // Defining and allocating memory for the 2D array C - dimensions nC-by-nC:
@@ -203,9 +197,7 @@ int main(void)
     eigenpairC.print();
     cout << "============================================================\n";
     /*==================================================================================================
-
         PART 3: Center and Covariance
-
     ==================================================================================================*/
     cout << "PART 3: Center and Covariance\n\n";
     C = new double* [nC];
@@ -261,9 +253,7 @@ int main(void)
 
     cout << "============================================================\n";
     /*==================================================================================================
-
         PART 4: Spectra Data
-
     ==================================================================================================*/
     cout << "PART 4: Spectra Data\n\n";
     const int N = 56; // rows
@@ -285,33 +275,35 @@ int main(void)
 
     // Code Here //
     double* vector_guess = nullptr;
-    vector_guess = new double[N];
-    for (int i = 0; i < N; i++) {
-        vector_guess[i] = 1.0;
+    vector_guess = new double[M];
+    for (int i = 0; i < M; i++) {
+        vector_guess[i] = rand();
     }
-    
+
     double* eigenvalues = nullptr;
-    eigenvalues = new double[N];
+    eigenvalues = new double[M];
     double** eigenvectors = nullptr;
-    eigenvectors = new double*[N];
+    eigenvectors = new double* [M];
 
     //computing principle components, iteratively calling power_method and deflate
-    for (int i = 0; i < N; i++) {       
-        Eigenpair Eigens = power_method(cov, vector_guess, (N), TOL);
+    for (int i = 0; i < M; i++) {
+        Eigenpair Eigens = power_method(cov, vector_guess, (M), TOL);
         eigenvalues[i] = Eigens.value;
-        eigenvectors[i] = Eigens.vector; 
-        vector_guess = Eigens.vector;
+        eigenvectors[i] = Eigens.vector;
         deflate(cov, Eigens);
+        for (int j = 0; j < M; j++) {
+            vector_guess[j] = rand();
+        }
     }
-    print_matrix(cov, N-40, N-40);
+    //print_matrix(cov, N - 40, N - 40);
     //writing out eigenvectors and eigenvalues (representing principle components) to csv
     std::ofstream PCA_FILE_EIGENVECTORS;
     PCA_FILE_EIGENVECTORS.open("PCA_EIGENVECTOR.csv");
     PCA_FILE_EIGENVECTORS << "PRINCIPAL COMPONENTS OF SPECTRA COVARIANCE MATRIX.\n";
-    for (int i = 0; i < N; i++) {
-        for (int j = 0; j < N; j++) {
+    for (int i = 0; i < M; i++) {
+        for (int j = 0; j < M; j++) {
             PCA_FILE_EIGENVECTORS << eigenvectors[i][j];
-            if (j != (N - 1)) {
+            if (j != (M - 1)) {
                 PCA_FILE_EIGENVECTORS << ',';
             }
         }
@@ -321,9 +313,9 @@ int main(void)
     std::ofstream PCA_FILE_EIGENVALUES;
     PCA_FILE_EIGENVALUES.open("PCA_EIGENVALUES.csv");
     PCA_FILE_EIGENVALUES << "PRINCIPAL COMPONENTS OF SPECTRA COVARIANCE MATRIX.\n";
-    for (int i = 0; i < N; i++) {
+    for (int i = 0; i < M; i++) {
         PCA_FILE_EIGENVALUES << eigenvalues[i];
-        if (i != (N-1)) {
+        if (i != (M - 1)) {
             PCA_FILE_EIGENVALUES << ',';
         }
     }
