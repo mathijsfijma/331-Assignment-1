@@ -36,7 +36,7 @@ plt.show()
 # for i in range(len(eigenvalues)):
 #     varianceRatios2.append(sum(eigenvalues[1:i])/sum(eigenvalues))
 
-# print(varianceRatios2)
+# print(varianceRatios2) 
 
 spectra = np.loadtxt(open("DS19hH2_dk0_FTIR_Spectra_instant_coffee.csv", "rb"), delimiter=",")
 mu = spectra.mean(axis=0)
@@ -47,48 +47,50 @@ plt.show()
 
 
 #Projecting spectra onto most important principal components
+# principalComponents = np.arange(0,5)
+
+# for i in range(len(principalComponents)):
+#     principalComponents[i] = (np.dot(spectra[i,:],eigenvectors[i,:]))
+# print(principalComponents)
+
 principalComponents = np.arange(0,5)
-
-for i in range(len(principalComponents)):
-    principalComponents[i] = (np.dot(spectra[i,:],eigenvectors[i,:]))
-print(principalComponents)
-
-principalComponents = np.arange(0,6)
 for i in range(len(principalComponents)):
 
-    for j in range(286):
+    for j in range(56):
 
-            principalComponents[i] += (np.dot(spectra[i,:],eigenvectors[j,:]))
+            principalComponents[i] += (np.dot(spectra[j+1,:],eigenvectors[i,:]))
 
 truePrincipalComponents = np.arange(0,56)
 for i in range(len(truePrincipalComponents)):
 
-    for j in range(286):
+    for j in range(56):
 
-            truePrincipalComponents[i] += (np.dot(spectra[i,:],eigenvectors[j,:]))
+            truePrincipalComponents[i] += (np.dot(spectra[j+1,:],eigenvectors[i,:]))
     #truePrincipalComponents[i] = truePrincipalComponents[i]/56
 
 proper_projections = np.empty((56,286))
 for i in range(56):
-    row_mean = np.mean(spectra[i,:])
+    row_mean = np.mean(spectra[i+1,:])
     for j in range(286):
         proper_projections[i,j] = row_mean
         for k in range(len(principalComponents)):
-            proper_projections[i,j] += ((principalComponents[k])*eigenvectors[k,j])
+            proper_projections[i,j] += ((principalComponents[k])*eigenvectors[k,j])/56
 
 true_proper_projections = np.empty((56,286))
 for i in range(56):
-    row_mean = np.mean(spectra[i,:])
+    row_mean = np.mean(spectra[i+1,:])
     for j in range(286):
         true_proper_projections[i,j] = row_mean
         for k in range(len(truePrincipalComponents)):
-            true_proper_projections[i,j] += ((truePrincipalComponents[k])*eigenvectors[k,j])
+            true_proper_projections[i,j] += ((truePrincipalComponents[k])*eigenvectors[k,j])/56
 
 
 mu = proper_projections.mean(axis=0)
 true_mu = true_proper_projections.mean(axis=0)
-plt.plot(true_mu,label = 'original')
-plt.plot(mu,label='reconstruction')
+# plt.plot(spectra[0,:], true_mu, label = 'original')
+# plt.plot(spectra[0,:], mu, label='reconstruction')
+plt.plot(spectra[0,:], true_mu, label = 'original')
+plt.plot(spectra[0,:], mu, label='reconstruction')
 plt.legend()
 plt.xlabel("Wavelength (nm)")
 plt.ylabel("Reflectance")
@@ -103,28 +105,43 @@ plt.show()
 
 final_projections = np.empty((56,6))
 for i in range(6):
-    for j in range(29):
-        final_projections[j,i] = np.dot(spectra[j,:], eigenvectors[i,:])
-    for k in range(27):
-        final_projections[29+k,i] = np.dot(spectra[29+k,:], eigenvectors[i,:])
+    for j in range(56):
+        final_projections[j,i] = np.dot(spectra[j+1,:], eigenvectors[i,:])
+    # for k in range(27):
+    #     final_projections[(29+k),i] = np.dot(spectra[(29+k),:], eigenvectors[i,:])
 chur =2
 target1 = np.arange(0,29)
-target2 = np.arange(29,56) #0,2;#1,2;#3,2
-# plt.scatter(final_projections[target1,5], final_projections[target1,2])
-# plt.scatter(final_projections[target2,5], final_projections[target2,2])
-# plt.show()
-# plt.scatter(final_projections[target1,1], final_projections[target1,2])
-# plt.scatter(final_projections[target2,1], final_projections[target2,2])
-# plt.show()
-# plt.scatter(final_projections[target1,0], final_projections[target1,2])
-# plt.scatter(final_projections[target2,0], final_projections[target2,2])
-# plt.show()
-# plt.scatter(final_projections[target1,3], final_projections[target1,2])
-# plt.scatter(final_projections[target2,3], final_projections[target2,2])
-# plt.show()
-# plt.scatter(final_projections[:,4], final_projections[:,2])
-# plt.scatter(final_projections[:,2], final_projections[:,4])
-# plt.show()
+target2 = np.arange(29,56) #0,2; 1,2; 2,3; 2,4; 2,5; 
+plt.scatter(final_projections[target1,1], final_projections[target1,2], label = "arabica")
+plt.scatter(final_projections[target2,1], final_projections[target2,2], label = "robusta")
+plt.legend()
+plt.xlabel("PC2")
+plt.ylabel("PC3")
+plt.show()
+plt.scatter(final_projections[target1,0], final_projections[target1,2], label = "arabica")
+plt.scatter(final_projections[target2,0], final_projections[target2,2], label = "robusta")
+plt.legend()
+plt.xlabel("PC1")
+plt.ylabel("PC3")
+plt.show()
+plt.scatter(final_projections[target1,3], final_projections[target1,2], label = "arabica")
+plt.scatter(final_projections[target2,3], final_projections[target2,2], label = "robusta")
+plt.legend()
+plt.xlabel("PC4")
+plt.ylabel("PC3")
+plt.show()
+plt.scatter(final_projections[target1,4], final_projections[target1,2], label = "arabica")
+plt.scatter(final_projections[target2,4], final_projections[target2,2], label = "robusta")
+plt.legend()
+plt.xlabel("PC5")
+plt.ylabel("PC3")
+plt.show()
+plt.scatter(final_projections[target1,5], final_projections[target1,2], label = "arabica")
+plt.scatter(final_projections[target2,5], final_projections[target2,2], label = "robusta")
+plt.legend()
+plt.xlabel("PC6")
+plt.ylabel("PC3")
+plt.show()
 
 # arabica = np.empty((10,286))
 # robusta = np.empty((10,286))
@@ -153,23 +170,24 @@ target2 = np.arange(29,56) #0,2;#1,2;#3,2
 arabica = np.empty((1,286))
 robusta = np.empty((1,286))
 
-i = 0
-row_mean = np.mean(spectra[i,:])
-for j in range(286):
-    arabica[0,j] = row_mean
-    for k in range(len(principalComponents)):
-        arabica[0,j] += ((principalComponents[k])*eigenvectors[k,j])
-
-row_mean = np.mean(spectra[i+29,:])
-for j in range(286):
-    robusta[0,j] = row_mean
-    for k in range(len(principalComponents)):
-        robusta[0,j] += ((principalComponents[k])*eigenvectors[k,j])
+# i = 10
+for i in range(29):
+    row_mean = np.mean(spectra[i+1,:])
+    for j in range(286):
+        arabica[0,j] = np.mean(spectra[i+1,:])
+        for k in range(len(principalComponents)):
+            arabica[0,j] += ((principalComponents[k])*eigenvectors[k,j])/56
+for i in range(27):
+    row_mean = np.mean(spectra[i+29,:])
+    for j in range(286):
+        robusta[0,j] = row_mean
+        for k in range(len(principalComponents)):
+            robusta[0,j] += ((principalComponents[k])*eigenvectors[k,j])/56
 
 arabica_mu = arabica.mean(axis=0)
 robusta_mu = robusta.mean(axis=0)
-plt.plot(arabica_mu,label= 'arabica')
-plt.plot(robusta_mu,label = 'robusta')
+plt.plot(spectra[0,:], arabica_mu, label= 'arabica')
+plt.plot(spectra[0,:], robusta_mu, label = 'robusta')
 plt.xlabel("Wavelength (nm)")
 plt.ylabel("Reflectance")
 plt.legend()
